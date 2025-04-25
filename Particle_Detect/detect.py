@@ -7,8 +7,9 @@ from Locate import locate,write_single_img_json
 import os
 import json
 import cv2
-Left_Image_Path='C:/Users/Claudius/WorkingSpace/Article1/0722experiment2/51/BMP192.168.8.51-20240707-072633'
-Right_Image_Path='C:/Users/Claudius/WorkingSpace/Article1/0722experiment2/52/BMP192.168.8.52-20240707-072635'
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+Left_Image_Path='../LeftSight1/'
+Right_Image_Path='../RightSight1/'
 K1 = np.array([[1.151812867953681e+04, 0, 2.930281306554746e+02],
                [0, 1.144065639977414e+04,9.299614621342721e+02], 
                [0, 0, 1]], dtype=np.float64)
@@ -21,16 +22,16 @@ dist2 = np.array([1.49649840089790,-14.9214987001899, -0.0891119097877299,0.0319
 
 Kmeans=Kmeans_Seg()
 Back_SubSegLeft=MOG2(Left_Image_Path,dist1,K1)
-Back_SubSegLeft.pretrain(1000,1999)
+Back_SubSegLeft.pretrain(0,100)
 print("[INFO]: Pretraining Left Image Done")
 Back_SubSegRight=MOG2(Right_Image_Path,dist2,K2)
-Back_SubSegRight.pretrain(1000,1999)
+Back_SubSegRight.pretrain(0,100)
 print("[INFO]: Pretraining Right Image Done")
 Left_sight=[]
 Right_sight=[]
 
     
-for val in range(2000,2100):
+for val in range(100,200):
     left=Back_SubSegLeft.MOG2_Seg(val,False)
     right=Back_SubSegRight.MOG2_Seg(val,False)
     Image_Info_Left,Radius_Info_Left,Img_Path_Info_Left=locate(left,Left_Image_Path,Kmeans,Back_SubSegLeft)
@@ -39,6 +40,12 @@ for val in range(2000,2100):
     Right_sight.append([Radius_Info_Right,Img_Path_Info_Right])
 Left_Sight_Data_JSON='Particle_info_left.json'
 Right_Sight_Data_JSON='Particle_info_right.json'
+if not os.path.exists(Left_Sight_Data_JSON):
+    with open(Left_Sight_Data_JSON, "w") as file:  # 以写模式打开
+        pass  # 创建文件
+if not os.path.exists(Right_Sight_Data_JSON):
+    with open(Right_Sight_Data_JSON, "w") as file:  # 以写模式打开
+        pass  # 创建文件
 with open(Left_Sight_Data_JSON, "r+") as file:  # 以读写模式打开
      file.truncate(0)  # 清空文件内容
 with open(Right_Sight_Data_JSON, "r+") as file:

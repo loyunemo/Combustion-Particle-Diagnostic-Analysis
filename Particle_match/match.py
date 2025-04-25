@@ -223,6 +223,7 @@ def Similarity_Distance_Evaluate(frame_start,frame_medium,frame_end,canvas):
             dislst.append([distance2,iternum_second,p2,similarity])
         dislst.sort(key=lambda x: x[0])
         dist=dislst
+        
         distance_lst=[distance_lst.copy(),dist[0]]
         select=distance_lst
         ParticleLd.append([Particle.coordinate,Particle[1],Particle[2],select])

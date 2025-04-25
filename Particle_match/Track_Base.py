@@ -28,7 +28,7 @@ class Track(object):
         #Particle_Begin.Link_Pre(None)
         Particle_Medium.Link_Next(Particle_End)
         Particle_Medium.Link_Pre(Particle_Begin)
-        Particle_End.Link_Next(None)
+        #Particle_End.Link_Next(None)
         Particle_End.Link_Pre(Particle_Medium)
         
         self.Kalman_Filter.update(np.array([Particle_Begin.coordinate.x,Particle_Begin.coordinate.y,0,0]))

@@ -19,6 +19,9 @@ def Evaluate_Similarity(id0:int,id1:int,id2:int,Frame0:Particle_Set,Frame1:Parti
     coordinate0=Particle0.coordinate
     coordinate1=Particle1.coordinate
     coordinate2=Particle2.coordinate
+    radius0=Particle0.radius
+    radius1=Particle1.radius
+    radius2=Particle2.radius
     vec1=Point(coordinate1.x-coordinate0.x,coordinate1.y-coordinate0.y)
     vec2=Point(coordinate2.x-coordinate1.x,coordinate2.y-coordinate1.y)
     '''   if vec1.__len__()==0 and vec2.__len__()==0:
@@ -27,14 +30,18 @@ def Evaluate_Similarity(id0:int,id1:int,id2:int,Frame0:Particle_Set,Frame1:Parti
         return 10000
     else:
     '''
-    f=(vec2-vec1).__len__()
+    if radius0==0 and radius1==0 and radius2==0:
+        f=(vec2-vec1).__len__()
+    else:
+        f=(vec2-vec1).__len__()*(1+abs(radius2-radius1)+abs(radius1-radius0)/(radius2+radius1+radius0)*3.0)
     return f
 class Match_Planner(object):
-    def __init__(self):
+    def __init__(self,img_path):
         self.TrackLst=[]
         self.IsoParticleSet=[]
         self.OutTrack=[]
         self.FrameSet=[]
+        self.img_path=img_path
     def Find_Smallest_Track_2d(self,Frame0:Particle_Set,Frame1:Particle_Set,Frame2:Particle_Set,Enable_Track=True):
         #给出三帧，找到合理的匹配，并且去掉冲突匹配，这里只要给出所有匹配就好
         #Link the track
@@ -148,8 +155,8 @@ class Match_Planner(object):
         return ID_Select
     def Track_Sort(self,Frame0:Particle_Set,Frame1:Particle_Set,Frame2:Particle_Set,enable_track=True):
         #去除冲突匹配，然后Link
-        trackid1=self.Find_Smallest_Track(Frame0,Frame1,Frame2,enable_track)
-        trackid2=self.Find_Smallest_Track(Frame2,Frame1,Frame0,enable_track)
+        trackid1=self.Find_Smallest_Track_2d(Frame0,Frame1,Frame2,enable_track)
+        trackid2=self.Find_Smallest_Track_2d(Frame2,Frame1,Frame0,enable_track)
         trackid2_reversed = [list(reversed(i)) for i in trackid2]
         trackid2_reversed.sort(key=lambda x: x[0])
         track_selected = []
@@ -264,6 +271,11 @@ class Match_Planner(object):
         self.FrameSet.append(Frame)
 
         return out
+    def Track_After_2frame(self,Frame0:Particle_Set,Frame1:Particle_Set):
+        out=self.Track_Sort(self.FrameSet[-1],Frame0,Frame1)       
+        self.FrameSet.append(Frame0)
+        self.FrameSet.append(Frame1)
+        return out
     def UpdateNewFrame(self,NewFrame:Particle_Set):
         #更新新的帧，添加新的Track
         self.FrameSet.append(NewFrame)
@@ -368,8 +380,9 @@ def Track_3d_Match(Sight1:Match_Planner,Sight2:Match_Planner,FrameLstLeft,FrameL
     T = np.array([-332.797331625628,5.51661638734196,197.141393142023]).T
     Left=Sight1.Base_Track(FrameLstLeft[0],FrameLstLeft[1],FrameLstLeft[2])
     Right=Sight2.Base_Track(FrameLstRight[0],FrameLstRight[1],FrameLstRight[2])
-    path_left='C:/Users/Claudius/WorkingSpace/Article1/0722experiment2/51/BMP192.168.8.51-20240707-072633'
-    path_right='C:/Users/Claudius/WorkingSpace/Article1/0722experiment2/51/BMP192.168.8.51-20240707-072633'
+    path_left=Sight1.img_path
+    path_right=Sight2.img_path
+    #path_right='C:/Users/Claudius/WorkingSpace/Article1/0722experiment2/51/BMP192.168.8.51-20240707-072633'
     pl=sorted([f for f in os.listdir(path_left) if f.endswith('bmp')])
     pr=sorted([f for f in os.listdir(path_right) if f.endswith('bmp')])
     print(FrameLstLeft[0].Time_Stamp)
@@ -379,9 +392,9 @@ def Track_3d_Match(Sight1:Match_Planner,Sight2:Match_Planner,FrameLstLeft,FrameL
     Min_Match=[] 
     #canvasL=np.zeros((1920,2592,3), dtype=np.uint8)
     canvasL=cv2.imread(os.path.join(path_left,pl[FrameLstLeft[0].Time_Stamp]))
-    canvasL=cv2.undistort(canvasL,K1s,dist1)
+    #canvasL=cv2.undistort(canvasL,K1s,dist1)
     canvasR=cv2.imread(os.path.join(path_right,pr[FrameLstRight[0].Time_Stamp]))
-    canvasR=cv2.undistort(canvasR,K2s,dist2)
+    #canvasR=cv2.undistort(canvasR,K2s,dist2)
     import random
     for i in range(3):
         color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))

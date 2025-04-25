@@ -3,14 +3,15 @@ import matplotlib.pyplot as plt
 import mayavi.mlab as mlab
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # 初始化图形和三维坐标轴
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 flag = False
 # 打开并读取 CSV 文件
-with open('Track_3d_Data.csv', 'r', newline='') as csvfile:
+with open('./Track_3d_Data.csv', 'r', newline='') as csvfile:
     reader = csv.reader(csvfile)
     x_vals_all, y_vals_all, z_vals_all = [], [], []
     for num, row in enumerate(reader):
