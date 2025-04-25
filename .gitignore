@@ -4,3 +4,6 @@ RightSight1/*
 RightSight2/*
 Particle_Info_Left_Data/*
 Particle_Info_Right_Data/*
+Particle_Detect/Particle_info_left.json
+Particle_Detect/Particle_info_right.json
+Particle_match/Track_3d_Data.json
